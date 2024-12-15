@@ -1,0 +1,48 @@
+############
+The new version
+// Load CSV data from your file or URL
+LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/luisfernandosolis/Knowledge_Graph-_Rag/refs/heads/main/Final_Mpox_Data_Adjusted.csv" AS row
+
+// Create Virus Node
+MERGE (v:Virus {name: row.Virus})
+
+// Create Symptom Nodes and Relationships
+FOREACH (symptom IN split(row.Symptoms, ",") |
+    MERGE (s:Symptom {name: trim(symptom)})
+    MERGE (v)-[:CAUSES]->(s)
+)
+
+// Create Location Nodes and Relationships
+MERGE (l:Location {name: row.Location, country: COALESCE(row.country, "Unknown")})
+MERGE (v)-[:AFFECTS]->(l)
+
+// Create Transmission Method Nodes and Relationships
+FOREACH (transmission IN split(row.Transmission, ",") |
+    MERGE (t:Transmission {method: trim(transmission)})
+    MERGE (v)-[:SPREADS_BY]->(t)
+)
+
+// Create Organization Nodes and Relationships
+MERGE (o:Organization {name: COALESCE(row.Organization, "Known")})
+MERGE (o)-[:INVOLVED_IN]->(v)
+
+// Create Article Nodes with Fact/Fake Label
+MERGE (a:Article {url: row.url, abstract: row.new_content})
+SET a.label = row.Label // Labeling whether the article is true or fake
+MERGE (a)-[:ABOUT_VIRUS]->(v)
+
+// Connect Article to Symptoms, Locations, and Transmission Methods
+FOREACH (symptom IN split(row.Symptoms, ",") |
+    MERGE (s:Symptom {name: trim(symptom)})
+    MERGE (a)-[:MENTIONS_SYMPTOM]->(s)
+)
+
+MERGE (a)-[:MENTIONS_LOCATION]->(l)
+
+FOREACH (transmission IN split(row.Transmission, ",") |
+    MERGE (t:Transmission {method: trim(transmission)})
+    MERGE (a)-[:MENTIONS_TRANSMISSION]->(t)
+)
+
+// Connect Article to Organization
+MERGE (a)-[:PUBLISHED_BY]->(o)

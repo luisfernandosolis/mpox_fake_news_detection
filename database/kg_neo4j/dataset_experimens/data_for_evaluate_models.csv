@@ -1,0 +1,101 @@
+question,query
+What are all the viruses mentioned in the dataset?,MATCH (v:Virus) RETURN v.name
+Which symptoms are caused by the virus Mpox?,MATCH (v:Virus {name: 'Mpox'})-[:CAUSES]->(s:Symptom) RETURN s.name
+What locations are affected by Mpox?,"MATCH (v:Virus {name: 'Mpox'})-[:AFFECTS]->(l:Location) RETURN l.name, l.country"
+What transmission methods are related to Mpox?,MATCH (v:Virus {name: 'Mpox'})-[:SPREADS_BY]->(t:Transmission) RETURN t.method
+Which organizations are involved in Mpox?,MATCH (v:Virus {name: 'Mpox'})<-[:INVOLVED_IN]-(o:Organization) RETURN o.name
+What are all the symptoms in the dataset?,MATCH (s:Symptom) RETURN s.name
+Which viruses cause the symptom 'Fever'?,MATCH (s:Symptom {name: 'Fever'})<-[:CAUSES]-(v:Virus) RETURN v.name
+Which articles mention the symptom 'Rash'?,MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom {name: 'Rash'}) RETURN a.url
+How many viruses cause each symptom?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom) RETURN s.name, count(v) AS virus_count"
+What are all the locations in the dataset?,"MATCH (l:Location) RETURN l.name, l.country"
+Which viruses affect Mexico?,MATCH (l:Location {name: 'Mexico'})<-[:AFFECTS]-(v:Virus) RETURN v.name
+Which articles mention Mexico?,MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location {name: 'Mexico'}) RETURN a.url
+What locations are affected by more than one virus?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) WITH l, COUNT(v) AS virus_count WHERE virus_count > 1 RETURN l.name, virus_count"
+What are all the transmission methods in the dataset?,MATCH (t:Transmission) RETURN t.method
+Which viruses are spread by 'Airborne Transmission'?,MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Airborne Transmission'}) RETURN v.name
+Which articles mention 'Direct Contact' as a transmission method?,MATCH (a:Article)-[:MENTIONS_TRANSMISSION]->(t:Transmission {method: 'Direct Contact'}) RETURN a.url
+How many viruses are transmitted by each method?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) RETURN t.method, count(v) AS virus_count"
+What are all the organizations involved in viruses?,MATCH (o:Organization) RETURN o.name
+Which organizations are involved in the virus Mpox?,MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus {name: 'Mpox'}) RETURN o.name
+Which articles are published by the organization 'WHO'?,MATCH (a:Article)-[:PUBLISHED_BY]->(o:Organization {name: 'WHO'}) RETURN a.url
+What are all the articles in the dataset?,"MATCH (a:Article) RETURN a.url, a.abstract, a.label"
+Which articles are labeled as true?,"MATCH (a:Article {label: 'True'}) RETURN a.url, a.abstract"
+Which articles are labeled as fake?,"MATCH (a:Article {label: 'Fake'}) RETURN a.url, a.abstract"
+Which virus is mentioned in the article with the URL 'example.com'?,MATCH (a:Article {url: 'example.com'})-[:ABOUT_VIRUS]->(v:Virus) RETURN v.name
+Which symptoms are mentioned in the article with the URL 'example.com'?,MATCH (a:Article {url: 'example.com'})-[:MENTIONS_SYMPTOM]->(s:Symptom) RETURN s.name
+What are the symptoms caused by Mpox in Mexico?,MATCH (v:Virus {name: 'Mpox'})-[:CAUSES]->(s:Symptom)<-[:MENTIONS_SYMPTOM]-(a:Article)-[:MENTIONS_LOCATION]->(l:Location {name: 'Mexico'}) RETURN s.name
+Which transmission methods are mentioned in articles about Mpox in Mexico?,MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus {name: 'Mpox'})-[:SPREADS_BY]->(t:Transmission) WHERE (a)-[:MENTIONS_LOCATION]->(l:Location {name: 'Mexico'}) RETURN t.method
+Which organizations are involved in publishing articles about Mpox?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus {name: 'Mpox'})-[:PUBLISHED_BY]->(o:Organization) RETURN o.name, a.url"
+How many articles mention Mpox?,MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus {name: 'Mpox'}) RETURN count(a)
+How many symptoms are associated with each virus?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom) RETURN v.name, count(s) AS symptom_count"
+Which virus spreads through 'Animal Transmission'?,MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Animal Transmission'}) RETURN v.name
+What is the abstract of the article with the URL 'example.com'?,MATCH (a:Article {url: 'example.com'}) RETURN a.abstract
+How many articles are labeled as fact?,MATCH (a:Article {label: 'True'}) RETURN count(a)
+Which viruses are mentioned in the dataset?,MATCH (v:Virus) RETURN v.name
+Which viruses affect multiple locations?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) WITH v, COUNT(l) AS location_count WHERE location_count > 1 RETURN v.name, location_count"
+Which viruses are spread by multiple transmission methods?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) WITH v, COUNT(t) AS method_count WHERE method_count > 1 RETURN v.name, method_count"
+Which viruses are involved in more than one article?,"MATCH (v:Virus)<-[:ABOUT_VIRUS]-(a:Article) WITH v, COUNT(a) AS article_count WHERE article_count > 1 RETURN v.name, article_count"
+What is the total number of viruses in the dataset?,MATCH (v:Virus) RETURN COUNT(v) AS virus_count
+Which symptom is most frequently mentioned in articles?,"MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom) RETURN s.name, COUNT(a) AS mention_count ORDER BY mention_count DESC LIMIT 1"
+Which viruses cause both 'Fever' and 'Rash'?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE s.name IN ['Fever', 'Rash'] RETURN v.name"
+Which symptoms are related to viruses that affect Mexico?,MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE (v)-[:AFFECTS]->(l:Location {name: 'Mexico'}) RETURN DISTINCT s.name
+How many symptoms are mentioned in each article?,"MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom) RETURN a.url, COUNT(s) AS symptom_count"
+Which viruses cause symptoms related to respiratory issues?,MATCH (s:Symptom) WHERE s.name CONTAINS 'Respiratory' WITH s MATCH (v:Virus)-[:CAUSES]->(s) RETURN v.name
+Which locations are mentioned in more than one article?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WITH l, COUNT(a) AS article_count WHERE article_count > 1 RETURN l.name, article_count"
+Which viruses affect locations in both North America and Europe?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) WHERE l.country IN ['United States', 'Mexico', 'Canada', 'United Kingdom', 'France', 'Germany'] RETURN v.name, COUNT(l) AS location_count"
+Which countries have the most virus-related articles?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) RETURN l.country, COUNT(a) AS article_count ORDER BY article_count DESC"
+What are the top 3 locations most frequently affected by viruses?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) RETURN l.name, COUNT(v) AS virus_count ORDER BY virus_count DESC LIMIT 3"
+Which articles mention locations in Asia?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['China', 'India', 'Japan'] RETURN a.url"
+Which transmission method is most common for viruses?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) RETURN t.method, COUNT(v) AS virus_count ORDER BY virus_count DESC LIMIT 1"
+Which viruses are spread by both airborne and droplet transmission?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) WHERE t.method IN ['Airborne', 'Droplet'] RETURN v.name"
+Which articles mention viruses that are spread by direct contact?,MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Direct Contact'}) RETURN a.url
+Which transmission methods are mentioned in the most articles?,"MATCH (a:Article)-[:MENTIONS_TRANSMISSION]->(t:Transmission) RETURN t.method, COUNT(a) AS mention_count ORDER BY mention_count DESC"
+How many different transmission methods are associated with each virus?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) RETURN v.name, COUNT(t) AS method_count"
+Which organizations are involved in more than one virus?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus) WITH o, COUNT(v) AS virus_count WHERE virus_count > 1 RETURN o.name, virus_count"
+Which articles are published by more than one organization?,"MATCH (a:Article)-[:PUBLISHED_BY]->(o:Organization) WITH a, COUNT(o) AS org_count WHERE org_count > 1 RETURN a.url, org_count"
+Which organizations are involved in articles about viruses spread by airborne transmission?,MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Airborne'})-[:PUBLISHED_BY]->(o:Organization) RETURN o.name
+What is the total number of organizations involved in the dataset?,MATCH (o:Organization) RETURN COUNT(o) AS org_count
+Which organizations are involved in viruses affecting both North and South America?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus)-[:AFFECTS]->(l:Location) WHERE l.country IN ['United States', 'Brazil'] RETURN DISTINCT o.name"
+Which articles are about viruses that spread by both airborne and direct contact?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission) WHERE t.method IN ['Airborne', 'Direct Contact'] RETURN a.url"
+Which articles are related to more than one virus?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus) WITH a, COUNT(v) AS virus_count WHERE virus_count > 1 RETURN a.url, virus_count"
+Which articles mention both 'Fever' and 'Rash' as symptoms?,"MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom) WHERE s.name IN ['Fever', 'Rash'] RETURN a.url"
+Which articles are published by more than one organization?,"MATCH (a:Article)-[:PUBLISHED_BY]->(o:Organization) WITH a, COUNT(o) AS org_count WHERE org_count > 1 RETURN a.url, org_count"
+Which articles mention both Mexico and the United States?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['Mexico', 'United States'] RETURN DISTINCT a.url"
+Which organizations publish articles about Mpox in Mexico?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus {name: 'Mpox'})-[:PUBLISHED_BY]->(o:Organization) WHERE (a)-[:MENTIONS_LOCATION]->(l:Location {name: 'Mexico'}) RETURN o.name, a.url"
+Which viruses cause symptoms related to respiratory and cardiovascular issues?,MATCH (s:Symptom) WHERE s.name CONTAINS 'Respiratory' OR s.name CONTAINS 'Cardiovascular' WITH s MATCH (v:Virus)-[:CAUSES]->(s) RETURN v.name
+Which transmission methods are mentioned in articles about viruses affecting both Mexico and the United States?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:MENTIONS_TRANSMISSION]->(t:Transmission) WHERE (a)-[:MENTIONS_LOCATION]->(l:Location) AND l.country IN ['Mexico', 'United States'] RETURN t.method, COUNT(a)"
+Which symptoms are caused by viruses that are spread by airborne and droplet transmission?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE (v)-[:SPREADS_BY]->(t:Transmission) AND t.method IN ['Airborne', 'Droplet'] RETURN s.name"
+Which organizations publish articles about viruses affecting both Mexico and Brazil?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:PUBLISHED_BY]->(o:Organization) WHERE (a)-[:MENTIONS_LOCATION]->(l:Location) AND l.country IN ['Mexico', 'Brazil'] RETURN DISTINCT o.name, a.url"
+Which viruses cause the most symptoms?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom) RETURN v.name, COUNT(s) AS symptom_count ORDER BY symptom_count DESC LIMIT 1"
+Which viruses affect the most countries?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) RETURN v.name, COUNT(DISTINCT l.country) AS country_count ORDER BY country_count DESC LIMIT 1"
+Which organizations are involved in the most viruses?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus) RETURN o.name, COUNT(v) AS virus_count ORDER BY virus_count DESC LIMIT 1"
+Which articles mention viruses affecting more than one continent?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WITH a, COUNT(DISTINCT l.country) AS location_count WHERE location_count > 1 RETURN a.url"
+Which viruses are transmitted via multiple methods in more than one location?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission), (v)-[:AFFECTS]->(l:Location) WITH v, COUNT(DISTINCT t) AS method_count, COUNT(DISTINCT l) AS location_count WHERE method_count > 1 AND location_count > 1 RETURN v.name"
+Which symptoms are associated with viruses transmitted by direct contact?,MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Direct Contact'})-[:CAUSES]->(s:Symptom) RETURN DISTINCT s.name
+What articles mention symptoms related to 'Cardiovascular' issues?,MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom) WHERE s.name CONTAINS 'Cardiovascular' RETURN a.url
+What viruses are transmitted via both 'Direct Contact' and 'Airborne' methods?,"MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission) WHERE t.method IN ['Direct Contact', 'Airborne'] RETURN DISTINCT v.name"
+Which organizations publish articles about viruses affecting Europe?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['United Kingdom', 'France', 'Germany']-[:PUBLISHED_BY]->(o:Organization) RETURN DISTINCT o.name, a.url"
+Which viruses cause both respiratory and gastrointestinal symptoms?,MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE s.name CONTAINS 'Respiratory' OR s.name CONTAINS 'Gastrointestinal' RETURN DISTINCT v.name
+Which articles mention both respiratory and cardiovascular symptoms?,MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom) WHERE s.name CONTAINS 'Respiratory' OR s.name CONTAINS 'Cardiovascular' RETURN a.url
+Which organizations are involved in publishing articles about viruses affecting Asia?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['China', 'India', 'Japan']-[:PUBLISHED_BY]->(o:Organization) RETURN DISTINCT o.name, a.url"
+Which articles mention viruses transmitted by both animals and direct contact?,"MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission) WHERE t.method IN ['Animal', 'Direct Contact'] RETURN DISTINCT a.url"
+Which symptoms are most commonly mentioned in articles about viruses affecting the United States?,"MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom)-[:MENTIONS_LOCATION]->(l:Location {country: 'United States'}) RETURN s.name, COUNT(a) AS mention_count ORDER BY mention_count DESC LIMIT 1"
+Which articles mention viruses affecting both North America and Asia?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['United States', 'China'] RETURN DISTINCT a.url"
+Which transmission methods are mentioned in articles about viruses causing respiratory symptoms?,MATCH (a:Article)-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission)-[:MENTIONS_SYMPTOM]->(s:Symptom {name: 'Respiratory'}) RETURN t.method
+Which organizations are involved in viruses affecting multiple continents?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus)-[:AFFECTS]->(l:Location) WITH o, COUNT(DISTINCT l.country) AS continent_count WHERE continent_count > 1 RETURN o.name, continent_count"
+What symptoms are mentioned in articles published by WHO?,"MATCH (a:Article)-[:PUBLISHED_BY]->(o:Organization {name: 'WHO'})-[:MENTIONS_SYMPTOM]->(s:Symptom) RETURN s.name, COUNT(a) AS mention_count ORDER BY mention_count DESC"
+Which transmission methods are associated with articles mentioning cardiovascular symptoms?,MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom {name: 'Cardiovascular'})-[:ABOUT_VIRUS]->(v:Virus)-[:SPREADS_BY]->(t:Transmission) RETURN t.method
+Which viruses are mentioned in articles labeled as true?,MATCH (a:Article {label: 'True'})-[:ABOUT_VIRUS]->(v:Virus) RETURN DISTINCT v.name
+Which viruses are mentioned in articles labeled as fake?,MATCH (a:Article {label: 'Fake'})-[:ABOUT_VIRUS]->(v:Virus) RETURN DISTINCT v.name
+What are the most common symptoms mentioned in articles about viruses affecting Europe?,"MATCH (a:Article)-[:MENTIONS_SYMPTOM]->(s:Symptom)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['United Kingdom', 'France', 'Germany'] RETURN s.name, COUNT(a) AS mention_count ORDER BY mention_count DESC LIMIT 5"
+What viruses are mentioned in articles labeled as fact?,MATCH (a:Article {label: 'True'})-[:ABOUT_VIRUS]->(v:Virus) RETURN v.name
+Which viruses affect both Mexico and the United Kingdom?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) WHERE l.country IN ['Mexico', 'United Kingdom'] RETURN DISTINCT v.name"
+Which organizations are involved in viruses that affect multiple countries?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus)-[:AFFECTS]->(l:Location) WITH o, COUNT(DISTINCT l.country) AS country_count WHERE country_count > 1 RETURN o.name, country_count"
+Which viruses affect both Africa and Asia?,"MATCH (v:Virus)-[:AFFECTS]->(l:Location) WHERE l.country IN ['Nigeria', 'South Africa', 'China', 'India'] RETURN DISTINCT v.name"
+Which viruses cause both neurological and gastrointestinal symptoms?,MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE s.name CONTAINS 'Neurological' OR s.name CONTAINS 'Gastrointestinal' RETURN DISTINCT v.name
+Which articles mention viruses that affect both Brazil and the United States?,"MATCH (a:Article)-[:MENTIONS_LOCATION]->(l:Location) WHERE l.country IN ['Brazil', 'United States'] RETURN DISTINCT a.url"
+Which viruses are responsible for fever and rash symptoms in Mexico?,"MATCH (v:Virus)-[:CAUSES]->(s:Symptom), (v)-[:AFFECTS]->(l:Location {name: 'Mexico'}) WHERE s.name IN ['Fever', 'Rash'] RETURN DISTINCT v.name"
+Which viruses cause symptoms related to skin issues?,MATCH (v:Virus)-[:CAUSES]->(s:Symptom) WHERE s.name CONTAINS 'Skin' RETURN DISTINCT v.name
+Which viruses are spread by airborne transmission and cause respiratory symptoms?,MATCH (v:Virus)-[:SPREADS_BY]->(t:Transmission {method: 'Airborne'})-[:CAUSES]->(s:Symptom {name: 'Respiratory'}) RETURN DISTINCT v.name
+Which organizations are involved in viruses affecting both Africa and South America?,"MATCH (o:Organization)-[:INVOLVED_IN]->(v:Virus)-[:AFFECTS]->(l:Location) WHERE l.country IN ['Nigeria', 'Brazil'] RETURN DISTINCT o.name"
